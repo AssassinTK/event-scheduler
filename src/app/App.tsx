@@ -618,22 +618,6 @@ export default function App() {
     setFontSize(prev => Math.max(prev - 0.125, 0.75));
   };
 
-          setData(syncedData);
-          localStorage.setItem('beach101-schedule', JSON.stringify(syncedData));
-        }
-      }
-      
-      setSyncStatus('✓ 雙向同步完成！');
-      setTimeout(() => setSyncStatus(''), 3000);
-    } catch (error) {
-      console.error('Sync error:', error);
-      setSyncStatus(`✗ 同步失敗：${error instanceof Error ? error.message : '未知錯誤'}`);
-      setTimeout(() => setSyncStatus(''), 5000);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   // Save GAS URL
   const handleSaveGasUrl = () => {
     if (!gasUrlInput.trim()) {
