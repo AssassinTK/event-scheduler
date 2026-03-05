@@ -373,33 +373,39 @@ export default function App() {
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    const savedData = localStorage.getItem('beach101-schedule');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        setData({
-          ...initialData,
-          ...parsed,
-          events: parsed.events || initialData.events,
-          schedules: parsed.schedules || initialData.schedules,
-          menus: parsed.menus || initialData.menus,
-          notes: parsed.notes || initialData.notes,
-          preparationItems: parsed.preparationItems || initialData.preparationItems,
-          staffMembers: parsed.staffMembers || initialData.staffMembers,
-          tasks: parsed.tasks || initialData.tasks,
-          tablePlacementItems: parsed.tablePlacementItems || initialData.tablePlacementItems,
-          personalSchedules: parsed.personalSchedules || initialData.personalSchedules,
-          budgets: parsed.budgets || initialData.budgets,
-          remarks: parsed.remarks || initialData.remarks,
-          globalStaff: parsed.globalStaff || initialData.globalStaff,
-          globalTasks: parsed.globalTasks || initialData.globalTasks,
-        });
-      } catch (e) {
-        console.error('Failed to load saved data');
-      }
-    }
+  // 僅在瀏覽器環境執行（避免 Vercel 構建錯誤）
+  if (typeof window === 'undefined') {
+    return;
+  }
 
-    const savedImages = localStorage.getItem('beach101-table-images');
+  const savedData = localStorage.getItem('beach101-schedule');
+  if (savedData) {
+    try {
+      const parsed = JSON.parse(savedData);
+      setData({
+        ...initialData,
+        ...parsed,
+        events: parsed.events || initialData.events,
+        schedules: parsed.schedules || initialData.schedules,
+        menus: parsed.menus || initialData.menus,
+        notes: parsed.notes || initialData.notes,
+        preparationItems: parsed.preparationItems || initialData.preparationItems,
+        staffMembers: parsed.staffMembers || initialData.staffMembers,
+        tasks: parsed.tasks || initialData.tasks,
+        tablePlacementItems: parsed.tablePlacementItems || initialData.tablePlacementItems,
+        personalSchedules: parsed.personalSchedules || initialData.personalSchedules,
+        budgets: parsed.budgets || initialData.budgets,
+        remarks: parsed.remarks || initialData.remarks,
+        globalStaff: parsed.globalStaff || initialData.globalStaff,
+        globalTasks: parsed.globalTasks || initialData.globalTasks,
+      });
+    } catch (e) {
+      console.error('Failed to load saved data');
+    }
+  }
+
+  const savedImages = localStorage.getItem('beach101-table-images');
+  // ... (rest of the code stays the same)
     if (savedImages) {
       try {
         setTableLayoutImages(JSON.parse(savedImages));
