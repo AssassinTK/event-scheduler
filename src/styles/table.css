@@ -1,0 +1,40 @@
+/* Global Table Styles */
+table th {
+  padding: 12px !important;
+  height: 52px;
+}
+
+table td {
+  padding: 12px !important;
+  height: 52px;
+}
+
+/* Delete button only shows on hover */
+.delete-btn-hover {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+tr:hover .delete-btn-hover {
+  opacity: 1;
+}
+
+/* Auto-apply hover effect to all delete buttons in tables */
+tbody tr td button {
+  transition: opacity 0.2s;
+}
+
+tbody tr:not(:hover) td button.text-red-500 {
+  opacity: 0.2;
+}
+
+tbody tr:hover td button.text-red-500 {
+  opacity: 1;
+}
+
+/* Gantt chart sticky column shadow */
+.gantt-sticky-col {
+  position: sticky;
+  left: 0;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
