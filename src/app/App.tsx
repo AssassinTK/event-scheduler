@@ -7,7 +7,10 @@ import { EditableSelect } from './components/EditableSelect';
 import '../styles/section-title.css';
 import '../styles/table.css';
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyQpsYz0bRJEEZydXTlcIo22Xap-BsftpDw6g_DLvv8tEMP-UW7WJf6RDQFdRmtDyxAg/exec';
+// 動態讀取 GAS URL - 支援從 localStorage 配置，用於 Google Sheets 同步
+const GAS_URL = typeof window !== 'undefined'
+  ? localStorage.getItem('beach101-gas-url') || 'https://script.google.com/macros/s/AKfycbyyQpsYz0bRJEEZydXTlcIo22Xap-BsftpDw6g_DLvv8tEMP-UW7WJf6RDQFdRmtDyxAg/exec'
+  : 'https://script.google.com/macros/s/AKfycbyyQpsYz0bRJEEZydXTlcIo22Xap-BsftpDw6g_DLvv8tEMP-UW7WJf6RDQFdRmtDyxAg/exec';
 
 // ========== 新架構資料結構 ==========
 
