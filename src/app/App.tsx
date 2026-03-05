@@ -4,6 +4,7 @@ import { Save, Trash2, Printer, Moon, Sun, Check, Plus, X, Download, RefreshCw, 
 import { EditableText } from './components/EditableText';
 import { EditableCheckbox } from './components/EditableCheckbox';
 import { EditableSelect } from './components/EditableSelect';
+import { useFirebaseEventSync } from '@/hooks/useFirebaseSync';
 import '../styles/section-title.css';
 import '../styles/table.css';
 
@@ -372,8 +373,24 @@ export default function App() {
   const [newEventColumnDate, setNewEventColumnDate] = useState('');
   const [newEventColumnTimeSlot, setNewEventColumnTimeSlot] = useState('');
 
+  // Firebase real-time sync state
+  const [firebaseConnected, setFirebaseConnected] = useState(false);
+  const [firebaseError, setFirebaseError] = useState<string>('');
+  const [lastFirebaseSync, setLastFirebaseSync] = useState<number>(0);
+  const [isFirebaseSyncing, setIsFirebaseSyncing] = useState(false);
+
   // Track if component has mounted (to skip auto-sync on initial load)
   const isInitialMount = useRef(true);
+
+  // Initialize Firebase real-time sync
+  const { writeDataToFirebase } = useFirebaseEventSync(data.events);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    setFirebaseConnected(true);
+  }, []);
 
   useEffect(() => {
   // 僅在瀏覽器環境執行（避免 Vercel 構建錯誤）
@@ -506,6 +523,51 @@ export default function App() {
     }
   }, [data]);
 
+  // Firebase real-time sync on data change
+  useEffect(() => {
+    if (typeof window === 'undefined' || isInitialMount.current) {
+      return; // Skip on initial mount and non-browser environments
+    }
+
+    const syncToFirebase = async () => {
+      try {
+        setIsFirebaseSyncing(true);
+        const success = await writeDataToFirebase({
+          events: data.events,
+          schedules: data.schedules,
+          menus: data.menus,
+          notes: data.notes,
+          preparationItems: data.preparationItems,
+          staffMembers: data.staffMembers,
+          tasks: data.tasks,
+          tablePlacementItems: data.tablePlacementItems,
+          personalSchedules: data.personalSchedules,
+          budgets: data.budgets,
+          remarks: data.remarks,
+          globalStaff: data.globalStaff,
+          globalTasks: data.globalTasks,
+          lastUpdated: Date.now(),
+          lastUpdatedTime: new Date().toISOString()
+        });
+
+        if (success) {
+          setLastFirebaseSync(Date.now());
+          setFirebaseError('');
+        }
+        setIsFirebaseSyncing(false);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Firebase sync failed';
+        setFirebaseError(errorMsg);
+        setIsFirebaseSyncing(false);
+      }
+    };
+
+    // Debounce Firebase sync to avoid too frequent updates
+    const timeoutId = setTimeout(syncToFirebase, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [data, writeDataToFirebase]);
+
   // Auto-polling mechanism
   useEffect(() => {
     if (!autoSync || !gasUrl) return;
@@ -593,12 +655,47 @@ export default function App() {
     }
   }, [showCopyTimeDropdown]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     localStorage.setItem('beach101-schedule', JSON.stringify(data));
     localStorage.setItem('beach101-table-images', JSON.stringify(tableLayoutImages));
     localStorage.setItem('beach101-darkmode', darkMode.toString());
     localStorage.setItem('beach101-fontsize', fontSize.toString());
     setSaved(true);
+
+    // Write to Firebase (real-time sync)
+    try {
+      setIsFirebaseSyncing(true);
+      const success = await writeDataToFirebase({
+        events: data.events,
+        schedules: data.schedules,
+        menus: data.menus,
+        notes: data.notes,
+        preparationItems: data.preparationItems,
+        staffMembers: data.staffMembers,
+        tasks: data.tasks,
+        tablePlacementItems: data.tablePlacementItems,
+        personalSchedules: data.personalSchedules,
+        budgets: data.budgets,
+        remarks: data.remarks,
+        globalStaff: data.globalStaff,
+        globalTasks: data.globalTasks,
+        lastUpdated: Date.now(),
+        lastUpdatedTime: new Date().toISOString()
+      });
+
+      if (success) {
+        setLastFirebaseSync(Date.now());
+        setFirebaseError('');
+        console.log('✅ Data synced to Firebase');
+      }
+      setIsFirebaseSyncing(false);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Firebase sync failed';
+      setFirebaseError(errorMsg);
+      setIsFirebaseSyncing(false);
+      console.error('❌ Firebase sync error:', error);
+    }
+
     setTimeout(() => setSaved(false), 2500);
   };
 
