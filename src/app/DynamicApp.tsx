@@ -192,31 +192,35 @@ export default function DynamicApp() {
 
         {/* 分頁內容 */}
         {sheets && Object.keys(sheets).length > 0 ? (
-          <Tabs defaultValue={Object.keys(sheets)[0]} className="w-full">
-            {/* 選項卡列表 */}
-            <TabsList className="flex gap-2 mb-6 border-b bg-white rounded-lg p-2">
-              {Object.keys(sheets).map((sheetName) => (
-                <TabsTrigger
-                  key={sheetName}
-                  value={sheetName}
-                  className="px-4 py-2 rounded-lg hover:bg-gray-100 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition"
-                >
-                  {sheetName}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div>
+            <Tabs defaultValue={Object.keys(sheets)[0]} className="w-full">
+              {/* 選項卡列表 */}
+              <TabsList className="flex gap-2 mb-6 border-b bg-white rounded-lg p-2 flex-wrap">
+                {Object.keys(sheets).map((sheetName) => (
+                  <TabsTrigger
+                    key={sheetName}
+                    value={sheetName}
+                    className="px-4 py-2 rounded-lg hover:bg-gray-100 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition whitespace-nowrap"
+                  >
+                    {sheetName}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-            {/* 選項卡內容 */}
-            {Object.entries(sheets).map(([sheetName, sheetData]) => (
-              <TabsContent key={sheetName} value={sheetName} className="mt-6">
-                <DynamicSheetTable
-                  sheetName={sheetName}
-                  headers={sheetData.headers}
-                  rows={sheetData.rows}
-                />
-              </TabsContent>
-            ))}
-          </Tabs>
+              {/* 選項卡內容 */}
+              {Object.entries(sheets).map(([sheetName, sheetData]) => (
+                <TabsContent key={sheetName} value={sheetName} className="mt-6">
+                  {sheetData && (
+                    <DynamicSheetTable
+                      sheetName={sheetName}
+                      headers={sheetData.headers || []}
+                      rows={sheetData.rows || []}
+                    />
+                  )}
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
         ) : (
           !isLoading && (
             <div className="text-center py-12">
